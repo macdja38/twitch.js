@@ -6,5 +6,5 @@ const api = new twitchAPI({ headers: { 'Client-ID': config.clientID } });
 // api.request('USERS', { login: 'RosieCode' }).then(console.log).catch(console.error);
 // api.request('USERS', { id: '53524279' }).then(console.log).catch(console.error);
 
-api.request('USERS_FOLLOWS', { from_id: 53524279, to_id: 154508651 }).then(console.log).catch(console.error);
+// console.log(api.fnName({ from_id: 53524279, to_id: 154508651 }).then(console.log).catch(console.error));
 
