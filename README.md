@@ -2,6 +2,8 @@
 ## About
 a new lib for interfacing with twitch api and chat servers
 
+## Documentation(https://twitch-js.github.io/twitch.js/)
+
 ## Installation
 **Node.js 8.0.0 or newer is required.**  
 npm install github:twitch-js/twitch.js --save
