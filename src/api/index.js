@@ -3,6 +3,14 @@ const endpoints = require('./endpoints');
 const constants = require('./constants');
 
 class BaseRequest {
+    /**
+     * Create a new api method
+     * @param {Object} [options] - options
+     * @param {Object} [options.headers] - method headers
+     * @param {string} [options.headers.Accept] - application type (defaults to v5)
+     * @param {string} [options.headers.Client-ID] - twitch clientID token
+     * @constructor
+     */
     constructor(options) {
         this.headers = {
             Accept: 'application/vnd.twitchtv.v5+json',
