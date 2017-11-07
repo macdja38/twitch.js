@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/twitch-js/twitch.js#readme",
   "dependencies": {
-    "snekfetch": "^3.5.8"
+    "snekfetch": "^3.5.8",
+    "ws": "^3.3.0"
   }
 }
