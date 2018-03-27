@@ -23,39 +23,27 @@ class twitchAPI {
 
     /**
      * Build string for targeted endpoint.
-     * 
+     *
      * @async
      * @param {string} endpoint - endpoint name.
-     * @param {string} params - endpoint params.
      * @returns {string} built string for requested endpoint.
      */
-    async fetch(endpoint, params) {
-        return this.constants.ROOT_URL + this.endpoints[endpoint](params);
+    fetch(endpoint) {
+        return this.constants.ROOT_URL + this.endpoints[endpoint];
     }
     /**
      * makes request to twitch api using supplied data.
-     * 
+     *
      * @async
      * @param {string} endpoint - endpoint name.
      * @param {string} params - endpoint params.
      * @returns {Promise<Object>} request data.
      */
-    request(endpoint, params) {
-        return new Promise(async (resolve, reject) => {
-            try {
-                this.url = await this.fetch(endpoint, params);
-            } catch (error) {
-                reject(error);
-            }
-
-            try {
-                let res = await snekfetch.get(this.url, { headers: this.headers });
-                if (res.status !== 200) { reject(new Error(res.statusText)); }
-                resolve(res.body.data);
-            } catch (error) {
-                reject(error);
-            }
-        });
+    async request(endpoint, params) {
+        this.url = await this.fetch(endpoint);
+        let res = await snekfetch.get(this.url, { headers: this.headers, query: { params } });
+        if (res.status !== 200) { throw new Error(res.statusText); }
+        return res.body.data;
     }
 
     // HELIX
@@ -70,8 +58,8 @@ class twitchAPI {
 
     /**
      * Gets game information by game ID or name.
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @param {string} [params.id] - Game ID. At most 100 id values can be specified.
      * @param {string} [params.name] - Game name. The name must be an exact match. For instance, "Pokemon" will not return a list of Pokemon games; instead, query the specific Pokemon game(s) in which you are interested. At most 100 name values can be specified.
      * @returns {Promise<games>} request data.
@@ -96,8 +84,8 @@ class twitchAPI {
 
     /**
      * Gets information about active streams. Streams are returned sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @param {string} [params.after] - Cursor for forward pagination: tells the server where to start fetching the next set of results, in a multi-page response.
      * @param {string} [params.before] - Cursor for backward pagination: tells the server where to start fetching the next set of results, in a multi-page response.
      * @param {string} [params.community_id] - Returns streams in a specified community ID. You can specify up to 100 IDs.
@@ -113,38 +101,37 @@ class twitchAPI {
 
     /**
      * Gets metadata information about active streams playing Overwatch or Hearthstone. Streams are sorted by number of current viewers, in descending order. Across multiple pages of results, there may be duplicate or missing streams, as viewers join and leave streams.
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @returns {Promise<Object>} request data.
      */
     streamsMetadata(params) { return this.request('STREAMS_METADATA', params); }
 
     /**
      * 	Gets information about one or more specified Twitch users. Users are identified by optional user IDs and/or login name. If neither a user ID nor a login name is specified, the user is looked up by Bearer token.
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @returns {Promise<Object>} request data.
      */
     users(params) { return this.request('USERS', params); }
 
     /**
      * Gets information on follow relationships between two Twitch users. Information returned is sorted in order, most recent follow first. This can return information like "who is lirik following," "who is following lirik,” or “is user X following user Y.”
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @returns {Promise<Object>} request data.
      */
     usersFollows(params) { return this.request('USERS_FOLLOWS', params); }
 
     /**
      * Gets video information by video ID (one or more), user ID (one only), or game ID (one only).
-     * 
-     * @param {Object} [params] - 
+     *
+     * @param {Object} [params] -
      * @returns {Promise<Object>} request data.
      */
     videos(params) { return this.request('VIDEOS', params); }
 
     // KRAKEN
-
 }
 
 module.exports = twitchAPI;
