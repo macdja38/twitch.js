@@ -39,17 +39,30 @@ class twitchChat extends EventEmitter {
         });
 
         this.client.on('message', (message) => {
-            this.emit('debug', message);
 
             if (message !== null) {
-                var parsed = this.parseMessage(message);
-                if (parsed !== null) {
-                    if (parsed.method === 'PRIVMSG') {
-                        this.emit('message', parsed);
-                    } else if (parsed.method === 'PING') {
-                        this.client.send(`PONG :${parsed.message}`);
+                message = message.replace(/(\n|\r)+$/g, '');
+                const coms = message.split('\r');
+
+                coms.forEach(element => {
+                    this.emit('debug', element);
+                    const parsed = this.parseMessage(element);
+
+                    if (parsed !== null) {
+                        if (parsed.method === 'PRIVMSG') {
+                            this.emit('message', parsed);
+                        } else if (parsed.method === 'PING') {
+                            this.client.send(`PONG :${parsed.message}`);
+                        } else if (parsed.method === 'JOIN') {
+                            this.emit('JOIN', { channel: parsed.channel, user: parsed.author });
+                        } else if (parsed.method === 'PART') {
+                            this.emit('PART', { channel: parsed.channel, user: parsed.author });
+                        }
                     }
-                }
+
+                });
+
+
             }
         });
 
@@ -57,6 +70,7 @@ class twitchChat extends EventEmitter {
     }
 
     parseMessage(rawMessage) {
+
         const parsedMessage = {
             content: null,
             tags: null,
@@ -64,6 +78,7 @@ class twitchChat extends EventEmitter {
             original: rawMessage,
             channel: null,
             author: null,
+            originalSplit: rawMessage.split(' '),
         };
 
         if (rawMessage[0] === '@') {
@@ -78,23 +93,37 @@ class twitchChat extends EventEmitter {
             parsedMessage.method = rawMessage.slice(userIndex + 1, commandIndex);
             parsedMessage.channel = rawMessage.slice(commandIndex + 1, channelIndex);
             parsedMessage.content = rawMessage.slice(messageIndex + 1);
-            parsedMessage.content = parsedMessage.content.slice(0, -2);
+            parsedMessage.content = parsedMessage.content;
+
+            parsedMessage.send = (message) => {
+                const channel = parsedMessage.channel;
+                this.sendMessage(channel, message);
+            };
+
+            parsedMessage.reply = (message) => {
+                const channel = parsedMessage.channel;
+                const author = parsedMessage.author;
+                this.sendMessage(channel, `@${author}, ${message}`);
+            };
+
         } else if (rawMessage.startsWith('PING')) {
             parsedMessage.method = 'PING';
             parsedMessage.content = rawMessage.split(':')[1];
+
+        } else if (parsedMessage.originalSplit[1] === 'JOIN') {
+            parsedMessage.method = 'JOIN';
+            parsedMessage.channel = parsedMessage.originalSplit[2];
+            parsedMessage.author = parsedMessage.originalSplit[0].split('!')[0].substr(1);
+
+        } else if (parsedMessage.originalSplit[1] === 'PART') {
+            parsedMessage.method = 'PART';
+            parsedMessage.channel = parsedMessage.originalSplit[2];
+            parsedMessage.author = parsedMessage.originalSplit[0].split('!')[0].substr(1);
+
+        } else {
+            console.error('unkown event', rawMessage);
+            this.emit('error', new Error('Unkown event state'));
         }
-
-        parsedMessage.send = (message) => {
-            const channel = parsedMessage.channel;
-            this.sendMessage(channel, message);
-        };
-
-        parsedMessage.reply = (message) => {
-            const channel = parsedMessage.channel;
-            const author = parsedMessage.author;
-            this.sendMessage(channel, `@${author}, ${message}`);
-        };
-
 
         return parsedMessage;
     }
