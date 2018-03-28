@@ -19,6 +19,9 @@ class twitchChat extends EventEmitter {
 
         this.client = null;
         this.ready = null;
+
+        let api = require('./../api/index');
+        this.api = new api({ headers: { 'Client-ID': this.options['Client-ID'] } });
     }
 
     connect() {
