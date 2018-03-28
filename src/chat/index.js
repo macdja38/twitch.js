@@ -44,9 +44,9 @@ class twitchChat extends EventEmitter {
             if (message !== null) {
                 var parsed = this.parseMessage(message);
                 if (parsed !== null) {
-                    if (parsed.command === 'PRIVMSG') {
+                    if (parsed.method === 'PRIVMSG') {
                         this.emit('message', parsed);
-                    } else if (parsed.command === 'PING') {
+                    } else if (parsed.method === 'PING') {
                         this.client.send(`PONG :${parsed.message}`);
                     }
                 }
@@ -60,7 +60,7 @@ class twitchChat extends EventEmitter {
         const parsedMessage = {
             content: null,
             tags: null,
-            command: null,
+            method: null,
             original: rawMessage,
             channel: null,
             author: null,
@@ -75,12 +75,12 @@ class twitchChat extends EventEmitter {
 
             parsedMessage.tags = rawMessage.slice(0, tagIndex);
             parsedMessage.author = rawMessage.slice(tagIndex + 2, rawMessage.indexOf('!'));
-            parsedMessage.command = rawMessage.slice(userIndex + 1, commandIndex);
+            parsedMessage.method = rawMessage.slice(userIndex + 1, commandIndex);
             parsedMessage.channel = rawMessage.slice(commandIndex + 1, channelIndex);
             parsedMessage.content = rawMessage.slice(messageIndex + 1);
             parsedMessage.content = parsedMessage.content.slice(0, -2);
         } else if (rawMessage.startsWith('PING')) {
-            parsedMessage.command = 'PING';
+            parsedMessage.method = 'PING';
             parsedMessage.content = rawMessage.split(':')[1];
         }
 
