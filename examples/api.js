@@ -1,10 +1,17 @@
-const config = require('./config.json');
-const twitchAPI = require('./../index')('api');
-const api = new twitchAPI({ headers: { 'Client-ID': config.clientID } });
+const config = { 'Client-ID': 'CLIENT_ID' };
+const twitch = require('./../index');
+const client = new twitch(config);
 
-// api.request('GAMES', { name: 'osu!' }).then(console.log).catch(console.error);
-// api.request('USERS', { login: 'RosieCode' }).then(console.log).catch(console.error);
-// api.request('USERS', { id: '53524279' }).then(console.log).catch(console.error);
+console.log(client.api);
 
-// console.log(api.fnName({ from_id: 53524279, to_id: 154508651 }).then(console.log).catch(console.error));
+(async () => {
+    let res;
 
+    try {
+        res = await client.api.getUsers(['rosiecode']);
+    } catch (error) {
+        console.error(error);
+    }
+
+    console.log(`the user-id for ${res.users[0].display_name} is: ${res.users[0]._id}`);
+})();
