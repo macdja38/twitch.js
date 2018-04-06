@@ -1,4 +1,4 @@
-const twitch = require('./../index');
+const twitch = require('../index');
 const config = { username: '<USERNAME>', oauth: 'oauth:<AUTH_TOKEN>' };
 const client = new twitch(config);
 

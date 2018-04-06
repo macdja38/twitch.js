@@ -1,5 +1,5 @@
 const config = { 'Client-ID': 'CLIENT_ID' };
-const twitch = require('./../index');
+const twitch = require('../index');
 const client = new twitch(config);
 
 console.log(client.api);
